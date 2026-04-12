@@ -50,9 +50,9 @@ public class NhlGoalLeader
     public string? Position { get; set; }
 
     /// <summary>
-    /// Team 3-letter abbreviation
+    /// Team 3-letter abbreviation (NHL API returns "teamAbbrevs" in the JSON)
     /// </summary>
-    [JsonPropertyName("teamAbbrev")]
+    [JsonPropertyName("teamAbbrevs")]
     public string? TeamAbbreviation { get; set; }
 
     /// <summary>

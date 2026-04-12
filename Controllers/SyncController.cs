@@ -123,31 +123,31 @@ public class NhlController : ControllerBase
         return Ok(standings);
     }
 
-    /// <summary>
-    /// GET: api/nhl/leaders/goals
-    /// Returns top goal scorers from our local database.
-    /// </summary>
-    [HttpGet("leaders/goals")]
-    public async Task<ActionResult<IEnumerable<object>>> GetGoalLeaders()
-    {
-        var leaders = await _context.NhlGoalLeaders
-            .Select(l => new
-            {
-                l.PlayerId,
-                FullName = l.FullName,
-                l.Position,
-                TeamName = l.TeamAbbreviation != null ? NhlGoalLeader.GetTeamNameFromAbbreviation(l.TeamAbbreviation) : "Unknown",
-                GamesPlayed = l.GamesPlayed,
-                Goals = l.Goals,
-                Assists = l.Assists,
-                Points = l.Points
-            })
-            .OrderByDescending(l => l.Goals)
-            .Take(20)
-            .ToListAsync();
+     /// <summary>
+     /// GET: api/nhl/leaders/goals
+     /// Returns top goal scorers from our local database.
+     /// </summary>
+     [HttpGet("leaders/goals")]
+     public async Task<ActionResult<IEnumerable<object>>> GetGoalLeaders()
+     {
+         var leaders = await _context.NhlGoalLeaders
+             .Select(l => new
+             {
+                 l.PlayerId,
+                 FullName = l.FullName,
+                 l.Position,
+                 TeamName = l.TeamAbbreviation ?? "Unknown",
+                 GamesPlayed = l.GamesPlayed,
+                 Goals = l.Goals,
+                 Assists = l.Assists,
+                 Points = l.Points
+             })
+             .OrderByDescending(l => l.Goals)
+             .Take(20)
+             .ToListAsync();
 
-        return Ok(leaders);
-    }
+         return Ok(leaders);
+     }
 
     /// <summary>
     /// GET: api/nhl/leaders/skaters
