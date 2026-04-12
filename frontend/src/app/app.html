@@ -91,13 +91,13 @@
           <span class="col-stat pts">PTS</span>
         </div>
 
-        <!-- Player Rows -->
-        @for (skater of skaters(); track skater.playerId) {
-        <div class="table-row">
-          <span class="col-rank">{{ $index + 1 }}</span>
-          <span class="col-name">{{ formatName(skater) }}</span>
-          <span class="col-team">{{ getTeamAbbrev(skater) }}</span>
-          <span class="col-pos">{{ getPositionLabel(skater) }}</span>
+         <!-- Player Rows -->
+         @for (skater of skaters(); track skater.playerId) {
+         <div class="table-row">
+           <span class="col-rank">{{ $index + 1 }}</span>
+           <span class="col-name">{{ formatName(skater) }}</span>
+           <span class="col-team">{{ getAbbreviation(skater.teamName) }}</span>
+           <span class="col-pos">{{ getPositionLabel(skater) }}</span>
           <span class="col-stat">{{ skater.goals }}</span>
           <span class="col-stat">{{ skater.assists }}</span>
           <span class="col-stat pts">{{ skater.points }}</span>

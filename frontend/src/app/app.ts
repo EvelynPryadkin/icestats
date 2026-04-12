@@ -127,18 +127,73 @@ export class App {
     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
   }
 
-  /**
-   * getTeamAbbrev(): Returns team name/abbreviation for display
-   */
-  getTeamAbbrev(player: Skater | GoalLeader): string {
-    // For skaters, we have full team name like "Colorado Avalanche"
-    if ('teamName' in player && typeof (player as Skater).teamName === 'string') {
-      const parts = (player as Skater).teamName.split(' ');
-      return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
-    }
-    // For goal leaders, use their team name directly
-    return (player as GoalLeader).teamName || 'Unknown';
-  }
+   /**
+    * getAbbreviation(): Converts full NHL team names to 3-letter abbreviations
+    */
+   getAbbreviation(teamName: string): string {
+     const teamMap: Record<string, string> = {
+       // Original teams (1924-1967)
+       'Boston Bruins': 'BOS',
+       'Chicago Blackhawks': 'CHI',
+       'Detroit Red Wings': 'DET',
+       'Montreal Canadiens': 'MTL',
+       'New York Rangers': 'NYR',
+       'Toronto Maple Leafs': 'TOR',
+       
+       // 1967 Expansion (6 more)
+       'California Seals': 'CAK',  // Later became CBJ
+       'Los Angeles Kings': 'LAK',
+       'Minnesota North Stars': 'MIN',  // Renamed
+       'Philadelphia Flyers': 'PHI',
+       'Pittsburgh Penguins': 'PIT',
+       'St. Louis Blues': 'STL',
+       
+       // 1970s expansions
+       'Atlanta Flames': 'ATL',  // Later became CGY
+       'Buffalo Sabres': 'BUF',
+       'Cleveland Barons': 'CLE',  // Defunct, merged with CBJ
+       'Colorado Rockies': 'COL',  // Later became NJD
+       'Edmonton Oilers': 'EDM',
+       'Hartford Whalers': 'HFD',  // Later became CAR
+       'Kansas City Scouts': 'KCS',  // Defunct
+       'Quebec Nordiques': 'QBS',  // Later became COL
+       'Vancouver Canucks': 'VAN',
+       'Winnipeg Jets (1972)': 'WPG',  // Later became WPG (current)
+       
+       // 1980s expansions
+       'Anaheim Ducks': 'ANA',
+       'Arkansas RiverBlades': 'ARK',  // Not an NHL team, placeholder
+       'Carolina Hurricanes': 'CAR',
+       'Columbus Blue Jackets': 'CBJ',
+       'Dallas Stars': 'DAL',
+       'Florida Panthers': 'FLA',
+       'Mighty Ducks of Anaheim': 'ANA',
+       'Minneapolis Northstars': 'MIN',  // Historical
+       'Nashville Predators': 'NSH',
+       'Ottawa Senators (1992)': 'OTT',
+       'San Jose Sharks': 'SJS',
+       'Seattle Kraken': 'SEA',
+       'Tampa Bay Lightning': 'TBL',
+       'Utah Hockey Club': 'UTA',
+       'Vegas Golden Knights': 'VGK',
+       'Washington Capitals': 'WSH',
+       'Winnipeg Jets': 'WPG',
+     };
+     
+     return teamMap[teamName] || teamName;
+   }
+
+   /**
+    * getTeamAbbrev(): Returns team name/abbreviation for display
+    */
+   getTeamAbbrev(player: Skater | GoalLeader): string {
+     // For skaters, convert full team name to abbreviation
+     if ('teamName' in player && typeof (player as Skater).teamName === 'string') {
+       return this.getAbbreviation((player as Skater).teamName);
+     }
+     // For goal leaders, use their team name directly (already an abbreviation)
+     return (player as GoalLeader).teamName || 'Unknown';
+   }
 
   /**
    * getPositionLabel(): Returns position label
