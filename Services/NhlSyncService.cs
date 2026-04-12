@@ -86,7 +86,7 @@ public class NhlSyncService
     {
         try
         {
-            var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=points&dir=DESC&cayenneExp=seasonId=20242025";
+             var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=points&dir=DESC&cayenneExp=seasonId=20252026";
             
             Console.WriteLine($"Requesting: {url}");
             
@@ -132,7 +132,7 @@ public class NhlSyncService
     {
         try
         {
-            var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=goals&dir=DESC&cayenneExp=seasonId=20242025";
+             var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=goals&dir=DESC&cayenneExp=seasonId=20252026";
             
             Console.WriteLine($"Requesting: {url}");
             
