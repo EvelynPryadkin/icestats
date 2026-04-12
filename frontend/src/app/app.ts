@@ -18,9 +18,9 @@ interface Skater {
 
 interface GoalLeader {
   playerId: number;
-  firstName: string;
-  lastName: string;
-  teamAbbreviation: string;
+  skaterFullName: string;
+  teamAbbrevs: string;
+  positionCode: string;
   goals: number;
   assists: number;
   points: number;
@@ -129,57 +129,60 @@ export class App {
   /**
    * getTeamAbbrev(): Formats team abbreviation for display
    */
-  getTeamAbbrev(player: Skater | GoalLeader): string {
-    if ('teamName' in player) {
-      const parts = (player as Skater).teamName.split(' ');
-      return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
-    }
-    return (player as GoalLeader).teamAbbreviation || '';
-  }
+   getTeamAbbrev(player: Skater | GoalLeader): string {
+     if ('teamName' in player) {
+       const parts = (player as Skater).teamName.split(' ');
+       return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
+     }
+     return (player as GoalLeader).teamAbbrevs || '';
+   }
 
   /**
    * getPositionLabel(): Returns position label with proper formatting
    */
-  getPositionLabel(player: Skater | GoalLeader): string {
-    if ('position' in player) {
-      return (player as Skater).position;
-    }
-    return 'N/A';
-  }
+   getPositionLabel(player: Skater | GoalLeader): string {
+     if ('position' in player) {
+       return (player as Skater).position;
+     }
+     if ('positionCode' in player) {
+       return (player as GoalLeader).positionCode;
+     }
+     return 'N/A';
+   }
 
   /**
    * formatName(): Formats player name consistently
    */
-  formatName(player: Skater | GoalLeader): string {
-    if ('firstName' in player && 'lastName' in player) {
-      return `${(player as GoalLeader).firstName} ${(player as GoalLeader).lastName}`;
-    }
-    return (player as Skater).fullName;
-  }
+   formatName(player: Skater | GoalLeader): string {
+     if ('skaterFullName' in player) {
+       return (player as GoalLeader).skaterFullName;
+     }
+     return (player as Skater).fullName;
+   }
 
   /**
    * topScorerName(): Returns formatted name of top scorer
    */
-  topScorerName() {
-    const scorer = this.topScorer();
-    if (!scorer) return '';
-    
-    if ('firstName' in scorer && 'lastName' in scorer) {
-      return `${(scorer as GoalLeader).firstName} ${(scorer as GoalLeader).lastName}`;
-    }
-    return (scorer as Skater).fullName;
-  }
+   topScorerName() {
+     const scorer = this.topScorer();
+     if (!scorer) return '';
+     
+     if ('skaterFullName' in scorer) {
+       return (scorer as GoalLeader).skaterFullName;
+     }
+     return (scorer as Skater).fullName;
+   }
 
-  /**
-   * topGoalScorerName(): Returns formatted name of top goal scorer
-   */
-  topGoalScorerName() {
-    const scorer = this.topGoalScorer();
-    if (!scorer) return '';
-    
-    if ('firstName' in scorer && 'lastName' in scorer) {
-      return `${(scorer as GoalLeader).firstName} ${(scorer as GoalLeader).lastName}`;
-    }
-    return (scorer as Skater).fullName;
-  }
+   /**
+    * topGoalScorerName(): Returns formatted name of top goal scorer
+    */
+   topGoalScorerName() {
+     const scorer = this.topGoalScorer();
+     if (!scorer) return '';
+     
+     if ('skaterFullName' in scorer) {
+       return (scorer as GoalLeader).skaterFullName;
+     }
+     return (scorer as Skater).fullName;
+   }
 }

@@ -130,16 +130,17 @@
           <span class="col-stat pts">PTS</span>
         </div>
 
-        <!-- Goal Leader Rows -->
-        @for (goalleader of goalLeaders(); track goalleader.playerId) {
-        <div class="table-row">
-          <span class="col-rank">{{ $index + 1 }}</span>
-          <span class="col-name">{{ formatName(goalleader) }}</span>
-          <span class="col-team">{{ getTeamAbbrev(goalleader) }}</span>
-          <span class="col-stat">{{ goalleader.goals }}</span>
-          <span class="col-stat">{{ goalleader.assists }}</span>
-          <span class="col-stat pts">{{ goalleader.points }}</span>
-        </div>
+         <!-- Goal Leader Rows -->
+         @for (goalleader of goalLeaders(); track goalleader.playerId) {
+         <div class="table-row">
+           <span class="col-rank">{{ $index + 1 }}</span>
+           <span class="col-name">{{ goalleader.skaterFullName }}</span>
+           <span class="col-team">{{ goalleader.teamAbbrevs }}</span>
+           <span class="col-pos">{{ goalleader.positionCode || 'N/A' }}</span>
+           <span class="col-stat">{{ goalleader.goals }}</span>
+           <span class="col-stat">{{ goalleader.assists }}</span>
+           <span class="col-stat pts">{{ goalleader.points }}</span>
+         </div>
         } @empty {
         <p class="no-data">No goal leader data available. Click "Sync Data" to refresh.</p>
         }
