@@ -127,61 +127,66 @@ export class App {
     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
   }
 
-   /**
-    * getAbbreviation(): Converts full NHL team names to 3-letter abbreviations
-    */
-   getAbbreviation(teamName: string): string {
-     const teamMap: Record<string, string> = {
-       // Original teams (1924-1967)
-       'Boston Bruins': 'BOS',
-       'Chicago Blackhawks': 'CHI',
-       'Detroit Red Wings': 'DET',
-       'Montreal Canadiens': 'MTL',
-       'New York Rangers': 'NYR',
-       'Toronto Maple Leafs': 'TOR',
-       
-       // 1967 Expansion (6 more)
-       'California Seals': 'CAK',  // Later became CBJ
-       'Los Angeles Kings': 'LAK',
-       'Minnesota North Stars': 'MIN',  // Renamed
-       'Philadelphia Flyers': 'PHI',
-       'Pittsburgh Penguins': 'PIT',
-       'St. Louis Blues': 'STL',
-       
-       // 1970s expansions
-       'Atlanta Flames': 'ATL',  // Later became CGY
-       'Buffalo Sabres': 'BUF',
-       'Cleveland Barons': 'CLE',  // Defunct, merged with CBJ
-       'Colorado Rockies': 'COL',  // Later became NJD
-       'Edmonton Oilers': 'EDM',
-       'Hartford Whalers': 'HFD',  // Later became CAR
-       'Kansas City Scouts': 'KCS',  // Defunct
-       'Quebec Nordiques': 'QBS',  // Later became COL
-       'Vancouver Canucks': 'VAN',
-       'Winnipeg Jets (1972)': 'WPG',  // Later became WPG (current)
-       
-       // 1980s expansions
-       'Anaheim Ducks': 'ANA',
-       'Arkansas RiverBlades': 'ARK',  // Not an NHL team, placeholder
-       'Carolina Hurricanes': 'CAR',
-       'Columbus Blue Jackets': 'CBJ',
-       'Dallas Stars': 'DAL',
-       'Florida Panthers': 'FLA',
-       'Mighty Ducks of Anaheim': 'ANA',
-       'Minneapolis Northstars': 'MIN',  // Historical
-       'Nashville Predators': 'NSH',
-       'Ottawa Senators (1992)': 'OTT',
-       'San Jose Sharks': 'SJS',
-       'Seattle Kraken': 'SEA',
-       'Tampa Bay Lightning': 'TBL',
-       'Utah Hockey Club': 'UTA',
-       'Vegas Golden Knights': 'VGK',
-       'Washington Capitals': 'WSH',
-       'Winnipeg Jets': 'WPG',
-     };
-     
-     return teamMap[teamName] || teamName;
-   }
+    /**
+     * getAbbreviation(): Converts full NHL team names to 3-letter abbreviations
+     * Falls back to first 3 letters of first word if not found in map
+     */
+    getAbbreviation(teamName: string): string {
+      const teamMap: Record<string, string> = {
+        // Original teams (1924-1967)
+        'Boston Bruins': 'BOS',
+        'Chicago Blackhawks': 'CHI',
+        'Detroit Red Wings': 'DET',
+        'Montreal Canadiens': 'MTL',
+        'New York Rangers': 'NYR',
+        'Toronto Maple Leafs': 'TOR',
+        
+        // 1967 Expansion
+        'Los Angeles Kings': 'LAK',
+        'Philadelphia Flyers': 'PHI',
+        'Pittsburgh Penguins': 'PIT',
+        'St. Louis Blues': 'STL',
+        
+        // 1970s expansions
+        'Buffalo Sabres': 'BUF',
+        'Edmonton Oilers': 'EDM',
+        'Vancouver Canucks': 'VAN',
+        
+        // Current NHL teams (1980s-2024)
+        'Anaheim Ducks': 'ANA',
+        'Arizona Coyotes': 'ARI',
+        'Carolina Hurricanes': 'CAR',
+        'Columbus Blue Jackets': 'CBJ',
+        'Colorado Avalanche': 'COL',
+        'Dallas Stars': 'DAL',
+        'Florida Panthers': 'FLA',
+        'Minnesota Wild': 'MIN',
+        'Nashville Predators': 'NSH',
+        'New Jersey Devils': 'NJD',
+        'New York Islanders': 'NYI',
+        'Ottawa Senators': 'OTT',
+        'San Jose Sharks': 'SJS',
+        'Seattle Kraken': 'SEA',
+        'Tampa Bay Lightning': 'TBL',
+        'Utah Hockey Club': 'UTA',
+        'Vegas Golden Knights': 'VGK',
+        'Washington Capitals': 'WSH',
+        'Winnipeg Jets': 'WPG',
+      };
+      
+      // Check exact match first
+      if (teamMap[teamName]) {
+        return teamMap[teamName];
+      }
+      
+      // Fallback: take first 3 letters of the first word and uppercase them
+      const parts = teamName.split(' ');
+      if (parts.length > 0) {
+        return parts[0].substring(0, 3).toUpperCase();
+      }
+      
+      return teamName;
+    }
 
    /**
     * getTeamAbbrev(): Returns team name/abbreviation for display
