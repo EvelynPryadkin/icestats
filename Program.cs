@@ -7,6 +7,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Configure CORS to allow requests from Angular frontend (localhost:4200)
+// This is needed because the browser enforces same-origin policy by default
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", builder =>
+    {
+        // Allow specific origin - this matches Angular's default dev server port
+        builder.WithOrigins("http://localhost:4200")
+               .AllowAnyMethod()   // Allow all HTTP methods (GET, POST, PUT, DELETE)
+               .AllowAnyHeader();  // Allow any headers to be sent
+    });
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -35,6 +48,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Enable CORS for the Angular frontend
+// This must be called before MapControllers() to work properly
+app.UseCors("AllowAngular");
 
 app.UseAuthorization();
 
