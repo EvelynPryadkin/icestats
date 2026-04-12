@@ -44,6 +44,13 @@ public class NhlGoalLeader
     public string? LastName { get; set; }
 
     /// <summary>
+    /// Full skater name (NHL API returns "skaterFullName" like "Nathan MacKinnon")
+    /// This takes precedence over FirstName + LastName combination
+    /// </summary>
+    [JsonPropertyName("skaterFullName")]
+    public string? SkaterFullName { get; set; }
+
+    /// <summary>
     /// Player's position: C, RW, LW, D
     /// </summary>
     [JsonPropertyName("position")]
@@ -128,9 +135,12 @@ public class NhlGoalLeader
 
     /// <summary>
     /// Helper property to get full player name
+    /// Uses SkaterFullName if available, otherwise combines FirstName + LastName
     /// </summary>
     [JsonIgnore]
-    public string FullName => $"{FirstName ?? ""} {LastName ?? ""}".Trim();
+    public string FullName => !string.IsNullOrEmpty(SkaterFullName) 
+        ? SkaterFullName 
+        : $"{FirstName ?? ""} {LastName ?? ""}".Trim();
 
     /// <summary>
     /// Helper property to get team name (using abbreviation)
