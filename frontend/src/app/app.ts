@@ -18,9 +18,10 @@ interface Skater {
 
 interface GoalLeader {
   playerId: number;
-  skaterFullName: string;
-  teamAbbrevs: string;
-  positionCode: string;
+  fullName: string;
+  position: string | null;
+  teamName: string;
+  gamesPlayed: number;
   goals: number;
   assists: number;
   points: number;
@@ -127,62 +128,60 @@ export class App {
   }
 
   /**
-   * getTeamAbbrev(): Formats team abbreviation for display
+   * getTeamAbbrev(): Returns team name/abbreviation for display
    */
-   getTeamAbbrev(player: Skater | GoalLeader): string {
-     if ('teamName' in player) {
-       const parts = (player as Skater).teamName.split(' ');
-       return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
-     }
-     return (player as GoalLeader).teamAbbrevs || '';
-   }
+  getTeamAbbrev(player: Skater | GoalLeader): string {
+    // For skaters, we have full team name like "Colorado Avalanche"
+    if ('teamName' in player && typeof (player as Skater).teamName === 'string') {
+      const parts = (player as Skater).teamName.split(' ');
+      return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
+    }
+    // For goal leaders, use their team name directly
+    return (player as GoalLeader).teamName || 'Unknown';
+  }
 
   /**
-   * getPositionLabel(): Returns position label with proper formatting
+   * getPositionLabel(): Returns position label
    */
-   getPositionLabel(player: Skater | GoalLeader): string {
-     if ('position' in player) {
-       return (player as Skater).position;
-     }
-     if ('positionCode' in player) {
-       return (player as GoalLeader).positionCode;
-     }
-     return 'N/A';
-   }
+  getPositionLabel(player: Skater | GoalLeader): string {
+    if ('positionCode' in player) {
+      const pos = (player as GoalLeader & { positionCode?: string }).positionCode;
+      return pos ? pos.charAt(0).toUpperCase() : 'N/A';
+    }
+    if ('position' in player) {
+      const pos = player.position;
+      return typeof pos === 'string' && pos.length > 0 ? pos.charAt(0).toUpperCase() : (pos || 'N/A');
+    }
+    return 'N/A';
+  }
 
   /**
    * formatName(): Formats player name consistently
    */
-   formatName(player: Skater | GoalLeader): string {
-     if ('skaterFullName' in player) {
-       return (player as GoalLeader).skaterFullName;
-     }
-     return (player as Skater).fullName;
-   }
+  formatName(player: Skater | GoalLeader): string {
+    if ('skaterFullName' in player) {
+      return (player as GoalLeader & { skaterFullName: string }).skaterFullName;
+    }
+    return 'fullName' in player ? player.fullName : '';
+  }
 
   /**
    * topScorerName(): Returns formatted name of top scorer
    */
-   topScorerName() {
-     const scorer = this.topScorer();
-     if (!scorer) return '';
-     
-     if ('skaterFullName' in scorer) {
-       return (scorer as GoalLeader).skaterFullName;
-     }
-     return (scorer as Skater).fullName;
-   }
+  topScorerName() {
+    const scorer = this.topScorer();
+    if (!scorer) return '';
+    
+    return 'skaterFullName' in scorer ? scorer.skaterFullName : scorer.fullName;
+  }
 
-   /**
-    * topGoalScorerName(): Returns formatted name of top goal scorer
-    */
-   topGoalScorerName() {
-     const scorer = this.topGoalScorer();
-     if (!scorer) return '';
-     
-     if ('skaterFullName' in scorer) {
-       return (scorer as GoalLeader).skaterFullName;
-     }
-     return (scorer as Skater).fullName;
-   }
+  /**
+   * topGoalScorerName(): Returns formatted name of top goal scorer
+   */
+  topGoalScorerName() {
+    const scorer = this.topGoalScorer();
+    if (!scorer) return '';
+    
+    return 'skaterFullName' in scorer ? scorer.skaterFullName : scorer.fullName;
+  }
 }
