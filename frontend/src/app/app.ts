@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 
 interface Skater {
   playerId: number;
-  skaterFullName: string;
-  teamAbbreviations: string;
+  fullName: string;
+  teamName: string;
   position: string;
   goals: number;
   assists: number;
@@ -35,17 +35,6 @@ interface SyncResponse {
  * 
  * This is the root component of your Angular application.
  * Think of it as the main container that holds everything else.
- * 
- * Key Concepts:
- * - @Component(): Decorator that marks this class as an Angular component
- *   - selector: The HTML tag name used to include this component ('app-root')
- *   - imports: Other Angular modules needed by this component
- *   - templateUrl: Path to the HTML file that defines the component's structure
- *   - styleUrl: Path to the CSS file for this component's styling
- * 
- * - inject<T>(): Function that gets a service instance from Angular's dependency injection system
- * - HttpClient: Angular's built-in service for making HTTP requests (GET, POST, PUT, DELETE)
- * - signal<T>(): Creates an observable-like value that automatically tracks dependencies
  */
 @Component({
   selector: 'app-root',
@@ -73,20 +62,20 @@ export class App {
 
   /**
    * loadSkaters(): Fetches top 50 skaters from the API
-   * - Uses HttpClient GET method to retrieve JSON data
-   * - The response is automatically typed as Skater[] due to TypeScript generics
    */
   loadSkaters() {
     this.http.get<Skater[]>('http://localhost:5048/api/nhl/leaders/skaters?limit=50')
       .subscribe({
-        next: (data) => this.skaters.set(data),
+        next: (data) => {
+          console.log('First skater object:', data[0]);
+          this.skaters.set(data);
+        },
         error: (err) => console.error('Error loading skaters:', err)
       });
   }
 
   /**
    * loadGoalLeaders(): Fetches top 20 goal scorers from the API
-   * - Similar to loadSkaters but for goal leaders
    */
   loadGoalLeaders() {
     this.http.get<GoalLeader[]>('http://localhost:5048/api/nhl/leaders/goals?limit=20')
@@ -98,13 +87,10 @@ export class App {
 
   /**
    * syncData(): Triggers data refresh from NHL API
-   * - Makes POST requests to trigger syncing
-   * - After successful sync, reloads the data to show updated stats
    */
   syncData() {
     this.isLoading = true;
     
-    // Sync both endpoints in parallel using forkJoin pattern (using Promise.all instead)
     const syncSkaters = this.http.post<SyncResponse>('http://localhost:5048/api/sync/skaters', {})
       .toPromise();
       
@@ -113,7 +99,6 @@ export class App {
 
     Promise.all([syncSkaters, syncGoals])
       .then(() => {
-        // Reload data after successful sync
         this.loadSkaters();
         this.loadGoalLeaders();
       })
@@ -124,63 +109,32 @@ export class App {
   }
 
   /**
-   * getTopScorer(): Finds the player with the most points
+   * topScorer(): Finds the player with the most points
    */
   topScorer() {
     const allPlayers = [...this.skaters(), ...this.goalLeaders()];
     if (allPlayers.length === 0) return null;
-    
-    // Sort by points descending and return the top one
     return allPlayers.sort((a, b) => b.points - a.points)[0];
   }
 
   /**
-   * getTopGoalScorer(): Finds the player with the most goals
+   * topGoalScorer(): Finds the player with the most goals
    */
   topGoalScorer() {
     const allPlayers = [...this.skaters(), ...this.goalLeaders()];
     if (allPlayers.length === 0) return null;
-    
-    // Sort by goals descending and return the top one
     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
-  }
-
-  /**
-   * getTopGoalScorerName(): Returns formatted name of top goal scorer
-   */
-  topGoalScorerName() {
-    const scorer = this.topGoalScorer();
-    if (!scorer) return '';
-    
-    // Handle different field names (skaters have skaterFullName, goalLeaders have firstName/lastName)
-    if ('firstName' in scorer && 'lastName' in scorer) {
-      return `${scorer.firstName} ${scorer.lastName}`;
-    }
-    return scorer.skaterFullName || scorer.skaterFullName;
-  }
-
-  /**
-   * getTopScorerName(): Returns formatted name of top scorer
-   */
-  topScorerName() {
-    const scorer = this.topScorer();
-    if (!scorer) return '';
-    
-    // Handle different field names (skaters have skaterFullName, goalLeaders have firstName/lastName)
-    if ('firstName' in scorer && 'lastName' in scorer) {
-      return `${scorer.firstName} ${scorer.lastName}`;
-    }
-    return scorer.skaterFullName || scorer.skaterFullName;
   }
 
   /**
    * getTeamAbbrev(): Formats team abbreviation for display
    */
   getTeamAbbrev(player: Skater | GoalLeader): string {
-    if ('teamAbbreviations' in player) {
-      return player.teamAbbreviations.split(',')[0] || '';
+    if ('teamName' in player) {
+      const parts = (player as Skater).teamName.split(' ');
+      return parts.length > 1 ? parts[parts.length - 1] : (player as Skater).teamName;
     }
-    return player.teamAbbreviation || '';
+    return (player as GoalLeader).teamAbbreviation || '';
   }
 
   /**
@@ -188,9 +142,8 @@ export class App {
    */
   getPositionLabel(player: Skater | GoalLeader): string {
     if ('position' in player) {
-      return player.position;
+      return (player as Skater).position;
     }
-    // Goal leaders might not have position, use N/A
     return 'N/A';
   }
 
@@ -199,8 +152,34 @@ export class App {
    */
   formatName(player: Skater | GoalLeader): string {
     if ('firstName' in player && 'lastName' in player) {
-      return `${player.firstName} ${player.lastName}`;
+      return `${(player as GoalLeader).firstName} ${(player as GoalLeader).lastName}`;
     }
-    return player.skaterFullName;
+    return (player as Skater).fullName;
+  }
+
+  /**
+   * topScorerName(): Returns formatted name of top scorer
+   */
+  topScorerName() {
+    const scorer = this.topScorer();
+    if (!scorer) return '';
+    
+    if ('firstName' in scorer && 'lastName' in scorer) {
+      return `${(scorer as GoalLeader).firstName} ${(scorer as GoalLeader).lastName}`;
+    }
+    return (scorer as Skater).fullName;
+  }
+
+  /**
+   * topGoalScorerName(): Returns formatted name of top goal scorer
+   */
+  topGoalScorerName() {
+    const scorer = this.topGoalScorer();
+    if (!scorer) return '';
+    
+    if ('firstName' in scorer && 'lastName' in scorer) {
+      return `${(scorer as GoalLeader).firstName} ${(scorer as GoalLeader).lastName}`;
+    }
+    return (scorer as Skater).fullName;
   }
 }
