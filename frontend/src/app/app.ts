@@ -124,16 +124,25 @@ export class App {
     return allPlayers.sort((a, b) => b.points - a.points)[0];
   }
 
-  /**
-   * topGoalScorer(): Finds the player with the most goals
-   */
-  topGoalScorer() {
-    const allPlayers = [...this.skaters(), ...this.goalLeaders()];
-    if (allPlayers.length === 0) return null;
-    return allPlayers.sort((a, b) => b.goals - a.goals)[0];
-  }
+   /**
+    * topGoalScorer(): Finds the player with the most goals
+    */
+   topGoalScorer() {
+     const allPlayers = [...this.skaters(), ...this.goalLeaders()];
+     if (allPlayers.length === 0) return null;
+     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
+   }
 
-  /**
+   /**
+    * topAssistPlayer(): Finds the player with the most assists from skaters array
+    */
+   topAssistPlayer() {
+     const players = this.skaters();
+     if (players.length === 0) return null;
+     return [...players].sort((a, b) => b.assists - a.assists)[0];
+   }
+
+   /**
    * getPositionLabel(): Returns position label
    * For goal leaders without position data, tries to look up from skaters by playerId
    */

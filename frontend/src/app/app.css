@@ -4,12 +4,12 @@
    
 /* 
    CSS Variables for consistent theming
-   Updated color palette with chic pink accent (#c17b8a)
+   Updated color palette with cool rose pink accent (#d4788a)
 */
 
 :root {
-  /* Accent color - chic pink */
-  --accent-color: #c17b8a;
+  /* Accent color - cool rose pink */
+  --accent-color: #d4788a;
   
   /* Background colors */
   --bg-primary: #fdf8f6;
@@ -88,7 +88,7 @@
 .sync-btn:hover:not(:disabled) {
   background-color: var(--accent-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(193, 123, 138, 0.3);
+  box-shadow: 0 4px 12px rgba(212, 120, 138, 0.3);
 }
 
 .sync-btn:active:not(:disabled) {
@@ -137,7 +137,7 @@
 }
 
 .search-input::placeholder {
-  color: var(--accent-color);
+  color: #c4b0ac;
 }
 
 .search-input:focus {
@@ -316,7 +316,7 @@
 }
 
 .table-row:hover {
-  background-color: rgba(193, 123, 138, 0.05);
+  background-color: rgba(212, 120, 138, 0.05);
 }
 
 /* Table Cells */

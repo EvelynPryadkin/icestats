@@ -39,11 +39,19 @@
     <!-- Stat Summary Cards -->
     <section class="summary-cards">
       
-      <!-- Total Players Card -->
-      <div class="stat-card">
-        <p class="card-label">Total Players</p>
-        <p class="card-value">{{ skaters().length + goalLeaders().length }}</p>
+      <!-- Most Assists Card -->
+      @if (topAssistPlayer()) {
+      <div class="stat-card highlight">
+        <p class="card-label">MOST ASSISTS</p>
+        <p class="card-player-name">{{ topAssistPlayer()?.fullName }}</p>
+        <p class="card-subtext" style="color: var(--accent-color);">{{ topAssistPlayer()?.assists }} Assists</p>
       </div>
+      } @else {
+      <div class="stat-card">
+        <p class="card-label">MOST ASSISTS</p>
+        <p class="card-value">-</p>
+      </div>
+      }
 
       <!-- Top Scorer Card -->
       @if (topScorer()) {
