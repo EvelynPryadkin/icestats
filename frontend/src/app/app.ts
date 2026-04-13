@@ -134,19 +134,44 @@ export class App {
   }
 
   /**
-   * getAllPlayers(): Combines skaters and goal leaders, removing duplicates by playerId
+   * getPositionLabel(): Returns position label
+   * For goal leaders without position data, tries to look up from skaters by playerId
+   */
+  getPositionLabel(player: Skater | GoalLeader): string {
+    // First check if player has positionCode (from NHL API)
+    if ('positionCode' in player) {
+      const pos = (player as any).positionCode;
+      return pos ? pos.charAt(0).toUpperCase() : '';
+    }
+    
+    // Check if player has position
+    if ('position' in player) {
+      const pos = player.position;
+      return typeof pos === 'string' && pos.length > 0 ? pos.charAt(0).toUpperCase() : '';
+    }
+    
+    return '';
+  }
+
+  /**
+   * getAllPlayers(): Combines skaters and goal leaders, keeping unique players by playerId
+   * When duplicate exists (same playerId in both tables), keeps the skater version (has more data)
    */
   getAllPlayers() {
-    const skaterMap = new Map<number, Skater | GoalLeader>();
+    const playerMap = new Map<number, Skater | GoalLeader>();
     
-    // Add all skaters first
-    this.skaters().forEach(player => skaterMap.set(player.playerId, player));
+    // First add all skaters (these will be kept when duplicates exist)
+    this.skaters().forEach(player => playerMap.set(player.playerId, player));
     
-    // Add goal leaders (duplicates will be overwritten since same playerId)
-    this.goalLeaders().forEach(player => skaterMap.set(player.playerId, player));
+    // Then add goal leaders that aren't already in the map
+    this.goalLeaders().forEach(leader => {
+      if (!playerMap.has(leader.playerId)) {
+        playerMap.set(leader.playerId, leader);
+      }
+    });
     
-    // Convert back to array and sort by goals descending
-    return Array.from(skaterMap.values()).sort((a, b) => b.goals - a.goals);
+    // Convert to array and sort by points descending (for All Players tab)
+    return Array.from(playerMap.values()).sort((a, b) => (b as any).points - (a as any).points);
   }
 
   /**
@@ -248,23 +273,8 @@ export class App {
        return this.getAbbreviation((player as Skater).teamName);
      }
      // For goal leaders, use their team name directly (already an abbreviation)
-     return (player as GoalLeader).teamName || 'Unknown';
+     return (player as GoalLeader).teamName || '';
    }
-
-  /**
-   * getPositionLabel(): Returns position label
-   */
-  getPositionLabel(player: Skater | GoalLeader): string {
-    if ('positionCode' in player) {
-      const pos = (player as GoalLeader & { positionCode?: string }).positionCode;
-      return pos ? pos.charAt(0).toUpperCase() : 'N/A';
-    }
-    if ('position' in player) {
-      const pos = player.position;
-      return typeof pos === 'string' && pos.length > 0 ? pos.charAt(0).toUpperCase() : (pos || 'N/A');
-    }
-    return 'N/A';
-  }
 
   /**
    * formatName(): Formats player name consistently

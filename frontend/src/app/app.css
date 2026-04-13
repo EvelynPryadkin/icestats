@@ -4,12 +4,12 @@
    
 /* 
    CSS Variables for consistent theming
-   These match the color palette defined in styles.css
+   Updated color palette with chic pink accent (#c17b8a)
 */
 
 :root {
-  /* Accent color for "stats" text and highlights */
-  --accent-color: #b07a72;
+  /* Accent color - chic pink */
+  --accent-color: #c17b8a;
   
   /* Background colors */
   --bg-primary: #fdf8f6;
@@ -18,6 +18,7 @@
   /* Text colors */
   --text-primary: #3d2c28;
   --text-muted: #7a6460;
+  --text-inactive-tab: #a89490;
   
   /* Border and card colors */
   --border-color: #e8ddd8;
@@ -87,7 +88,7 @@
 .sync-btn:hover:not(:disabled) {
   background-color: var(--accent-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(176, 122, 114, 0.3);
+  box-shadow: 0 4px 12px rgba(193, 123, 138, 0.3);
 }
 
 .sync-btn:active:not(:disabled) {
@@ -111,6 +112,73 @@
   display: flex;
   flex-direction: column;
   gap: 3rem;
+}
+
+/* ===========================================
+   Search Bar Section
+   =========================================== */
+
+.search-section {
+  width: 320px;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-primary);
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: var(--accent-color);
+}
+
+.search-input:focus {
+  border-color: var(--accent-color);
+}
+
+/* ===========================================
+   Tab Navigation
+   =========================================== */
+
+.tabs-nav-wrapper {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-inactive-tab);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: -1px; /* Pull down to align with bottom border */
+}
+
+.tab-btn:hover {
+  color: var(--accent-color);
+}
+
+.tab-btn.active {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
 }
 
 /* ===========================================
@@ -248,7 +316,7 @@
 }
 
 .table-row:hover {
-  background-color: rgba(176, 122, 114, 0.05);
+  background-color: rgba(193, 123, 138, 0.05);
 }
 
 /* Table Cells */

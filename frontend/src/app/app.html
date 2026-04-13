@@ -84,24 +84,26 @@
         [ngModelOptions]="{standalone: true}">
     </section>
 
-    <!-- Navigation Tabs -->
-    <section class="tabs-nav">
-      <button 
-        class="tab-btn {{ activeTab() === 'skaters' ? 'active' : '' }}"
-        (click)="activeTab.set('skaters')">
-        Top 50 Skaters
-      </button>
-      <button 
-        class="tab-btn {{ activeTab() === 'goalleaders' ? 'active' : '' }}"
-        (click)="activeTab.set('goalleaders')">
-        Top 20 Goal Scorers
-      </button>
-      <button 
-        class="tab-btn {{ activeTab() === 'allplayers' ? 'active' : '' }}"
-        (click)="activeTab.set('allplayers')">
-        All Players
-      </button>
-    </section>
+    <!-- Navigation Tabs Wrapper -->
+    <div class="tabs-nav-wrapper">
+      <section class="tabs-nav">
+        <button 
+          class="tab-btn {{ activeTab() === 'skaters' ? 'active' : '' }}"
+          (click)="activeTab.set('skaters')">
+          Top 50 Skaters
+        </button>
+        <button 
+          class="tab-btn {{ activeTab() === 'goalleaders' ? 'active' : '' }}"
+          (click)="activeTab.set('goalleaders')">
+          Top 20 Goal Scorers
+        </button>
+        <button 
+          class="tab-btn {{ activeTab() === 'allplayers' ? 'active' : '' }}"
+          (click)="activeTab.set('allplayers')">
+          All Players
+        </button>
+      </section>
+    </div>
 
     <!-- Skaters Leaderboard Tab -->
     @if (activeTab() === 'skaters') {
