@@ -4,26 +4,26 @@
    
 /* 
    CSS Variables for consistent theming
-   Updated color palette with cool rose pink accent (#d4788a)
+   Updated color palette with new pink accents:
+   - #FFB0DD: Main accent (tab underline, points column, card borders, logo)
+   - #FF84C6: Hover/pop accent (header hover, search focus ring)
+   - #c4527a: Stat values inside cards
 */
 
 :root {
-  /* Primary accent color - cool rose pink (for borders, highlights, subtle effects) */
-  --accent-color: #d4788a;
+  /* Main accent color - hot pink (#FFB0DD) */
+  --color-pop: #FFB0DD;
   
-  /* Pop accent color - hot pink for subtle glows and focus states only */
-  --pop-accent: #FF7CD6;
-  
-  /* Background colors */
+  /* Background colors - unchanged */
   --bg-primary: #fdf8f6;
   --bg-card: #ffffff;
   
-  /* Text colors */
+  /* Text colors - unchanged except for stat values */
   --text-primary: #3d2c28;
   --text-muted: #7a6460;
   --text-inactive-tab: #a89490;
   
-  /* Border and card colors */
+  /* Border and card colors - unchanged */
   --border-color: #e8ddd8;
 }
 
@@ -70,14 +70,14 @@
 }
 
 .accent-text {
-  color: var(--accent-color);
+  color: #c4527a; /* Stat values inside cards - pink and readable */
 }
 
 /* Sync Button */
 .sync-btn {
   background-color: var(--text-primary);
   color: white;
-  border: none;
+  border: 3px solid #FFB0DD;
   padding: 0.75rem 1.5rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -89,9 +89,10 @@
 }
 
 .sync-btn:hover:not(:disabled) {
-  background-color: var(--accent-color);
+  background-color: #FFB0DD;
+  color: var(--text-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 120, 138, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 176, 221, 0.3);
 }
 
 .sync-btn:active:not(:disabled) {
@@ -136,7 +137,7 @@
   border: 1px solid var(--border-color);
   border-radius: 24px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .search-input::placeholder {
@@ -144,8 +145,8 @@
 }
 
 .search-input:focus {
-  border-color: var(--pop-accent);
-  box-shadow: 0 0 0 2px rgba(255, 124, 214, 0.3);
+  border-color: #FF84C6;
+  box-shadow: 0 0 0 3px rgba(255, 132, 198, 0.3);
 }
 
 /* ===========================================
@@ -177,14 +178,14 @@
 }
 
 .tab-btn:hover {
-  color: var(--accent-color);
+  color: #FF84C6;
 }
 
 .tab-btn.active {
-  color: var(--accent-color);
-  border-bottom: 2px solid var(--pop-accent);
-  box-shadow: inset 0 -2px 6px rgba(255, 124, 214, 0.3);
-  /* Only show underline glow effect, no box around the tab */
+  color: var(--text-primary);
+  border-bottom: 3px solid #FFB0DD;
+  box-shadow: inset 0 -2px 8px rgba(255, 176, 221, 0.3);
+  /* Only show underline in main accent, no box around the tab */
 }
 
 .sort-header {
@@ -204,7 +205,7 @@
 }
 
 .sort-header:hover {
-  color: var(--accent-color);
+  color: #FF84C6;
 }
 
 .sort-header span.arrow {
@@ -231,7 +232,7 @@
 
 .stat-card.highlight {
   background: linear-gradient(135deg, #fffdfb, #fffbf7);
-  border-left: 4px solid var(--accent-color);
+  border-left: 4px solid #FFB0DD;
 }
 
 .card-label {
@@ -259,7 +260,7 @@
 
 .card-subtext {
   font-size: 1rem;
-  color: var(--accent-color);
+  color: #c4527a; /* Stat values - pink and readable */
   font-weight: 500;
 }
 
@@ -291,7 +292,7 @@
   top: 50%;
   width: 4px;
   height: 28px;
-  background-color: var(--accent-color);
+  background-color: #c4527a; /* Pink accent */
   border-radius: 2px;
 }
 
@@ -346,7 +347,7 @@
 }
 
 .table-row:hover {
-  background-color: rgba(212, 120, 138, 0.05);
+  background-color: rgba(255, 176, 221, 0.05);
 }
 
 /* Table Cells */
@@ -378,7 +379,7 @@
 /* Points column gets special styling */
 .col-stat.pts {
   font-weight: 700;
-  color: var(--accent-color);
+  color: #FFB0DD; /* Hot pink accent */
 }
 
 /* ===========================================
