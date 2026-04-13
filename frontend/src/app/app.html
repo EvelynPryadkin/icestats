@@ -74,11 +74,118 @@
       }
     </section>
 
-    <!-- Top Skaters Leaderboard -->
+    <!-- Search Bar -->
+    <section class="search-section">
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Search by player name or team..."
+        [(ngModel)]="searchQuery"
+        [ngModelOptions]="{standalone: true}">
+    </section>
+
+    <!-- Navigation Tabs -->
+    <section class="tabs-nav">
+      <button 
+        class="tab-btn {{ activeTab() === 'skaters' ? 'active' : '' }}"
+        (click)="activeTab.set('skaters')">
+        Top 50 Skaters
+      </button>
+      <button 
+        class="tab-btn {{ activeTab() === 'goalleaders' ? 'active' : '' }}"
+        (click)="activeTab.set('goalleaders')">
+        Top 20 Goal Scorers
+      </button>
+      <button 
+        class="tab-btn {{ activeTab() === 'allplayers' ? 'active' : '' }}"
+        (click)="activeTab.set('allplayers')">
+        All Players
+      </button>
+    </section>
+
+    <!-- Skaters Leaderboard Tab -->
+    @if (activeTab() === 'skaters') {
     <section class="leaderboard-section">
-      <h2 class="section-title">Top 50 Skaters by Points</h2>
-      
-      @if (skaters().length > 0) {
+      @if (getFilteredPlayers().length > 0) {
+      <div class="leaderboard-table">
+        <!-- Table Header -->
+        <div class="table-header">
+          <span class="col-rank">#</span>
+          <span class="col-name">Player Name</span>
+          <span class="col-team">Team</span>
+          <span class="col-pos">Pos</span>
+          <span class="col-stat">G</span>
+          <span class="col-stat">A</span>
+          <span class="col-stat pts">PTS</span>
+        </div>
+
+        <!-- Player Rows -->
+        @for (skater of getFilteredPlayers(); track skater.playerId) {
+        <div class="table-row">
+          <span class="col-rank">{{ $index + 1 }}</span>
+          <span class="col-name">{{ formatName(skater) }}</span>
+          <span class="col-team">{{ getAbbreviation(skater.teamName) }}</span>
+          <span class="col-pos">{{ getPositionLabel(skater) }}</span>
+          <span class="col-stat">{{ skater.goals }}</span>
+          <span class="col-stat">{{ skater.assists }}</span>
+          <span class="col-stat pts">{{ skater.points }}</span>
+        </div>
+        } @empty {
+        <p class="no-data">No players found.</p>
+        }
+      </div>
+      } @else {
+      <div class="empty-state">
+        <p class="no-data">Loading skater data...</p>
+        <button class="sync-btn small" (click)="syncData()">Sync Data</button>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- Goal Scorers Leaderboard Tab -->
+    @if (activeTab() === 'goalleaders') {
+    <section class="leaderboard-section">
+      @if (getFilteredPlayers().length > 0) {
+      <div class="leaderboard-table">
+        <!-- Table Header -->
+        <div class="table-header">
+          <span class="col-rank">#</span>
+          <span class="col-name">Player Name</span>
+          <span class="col-team">Team</span>
+          <span class="col-stat">G</span>
+          <span class="col-stat">A</span>
+          <span class="col-stat pts">PTS</span>
+        </div>
+
+         <!-- Goal Leader Rows -->
+         @for (goalleader of getFilteredPlayers(); track goalleader.playerId) {
+         <div class="table-row">
+           <span class="col-rank">{{ $index + 1 }}</span>
+           <span class="col-name">{{ formatName(goalleader) }}</span>
+           <span class="col-team">{{ getTeamAbbrev(goalleader) }}</span>
+           <span class="col-stat">{{ goalleader.goals }}</span>
+           <span class="col-stat">{{ goalleader.assists }}</span>
+           <span class="col-stat pts">{{ goalleader.points }}</span>
+         </div>
+        } @empty {
+        <p class="no-data">No players found.</p>
+        }
+      </div>
+      } @else {
+      <div class="empty-state">
+        <p class="no-data">Loading goal leader data...</p>
+        <button class="sync-btn small" (click)="syncData()">Sync Data</button>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- All Players Leaderboard Tab -->
+    @if (activeTab() === 'allplayers') {
+    <section class="leaderboard-section">
+      @if (getFilteredPlayers().length > 0) {
+      <h2 class="section-title">All {{ getFilteredPlayers().length }} Players</h2>
       <div class="leaderboard-table">
         <!-- Table Header -->
         <div class="table-header">
@@ -92,65 +199,28 @@
         </div>
 
          <!-- Player Rows -->
-         @for (skater of skaters(); track skater.playerId) {
+         @for (player of getFilteredPlayers(); track player.playerId) {
          <div class="table-row">
            <span class="col-rank">{{ $index + 1 }}</span>
-           <span class="col-name">{{ formatName(skater) }}</span>
-           <span class="col-team">{{ getAbbreviation(skater.teamName) }}</span>
-           <span class="col-pos">{{ getPositionLabel(skater) }}</span>
-          <span class="col-stat">{{ skater.goals }}</span>
-          <span class="col-stat">{{ skater.assists }}</span>
-          <span class="col-stat pts">{{ skater.points }}</span>
-        </div>
-        } @empty {
-        <p class="no-data">No skater data available. Click "Sync Data" to refresh.</p>
-        }
-      </div>
-      } @else {
-      <div class="empty-state">
-        <p class="no-data">Loading skater data...</p>
-        <button class="sync-btn small" (click)="syncData()">Sync Data</button>
-      </div>
-      }
-    </section>
-
-    <!-- Top Goal Scorers Section -->
-    <section class="leaderboard-section">
-      <h2 class="section-title">Top 20 Goal Scorers</h2>
-      
-      @if (goalLeaders().length > 0) {
-      <div class="leaderboard-table">
-        <!-- Table Header -->
-        <div class="table-header">
-          <span class="col-rank">#</span>
-          <span class="col-name">Player Name</span>
-          <span class="col-team">Team</span>
-          <span class="col-stat">G</span>
-          <span class="col-stat">A</span>
-          <span class="col-stat pts">PTS</span>
-        </div>
-
-         <!-- Goal Leader Rows -->
-         @for (goalleader of goalLeaders(); track goalleader.playerId) {
-         <div class="table-row">
-           <span class="col-rank">{{ $index + 1 }}</span>
-           <span class="col-name">{{ goalleader.fullName }}</span>
-           <span class="col-team">{{ getTeamAbbrev(goalleader) }}</span>
-           <span class="col-stat">{{ goalleader.goals }}</span>
-           <span class="col-stat">{{ goalleader.assists }}</span>
-           <span class="col-stat pts">{{ goalleader.points }}</span>
+           <span class="col-name">{{ formatName(player) }}</span>
+           <span class="col-team">{{ getAbbreviation(player.teamName) }}</span>
+           <span class="col-pos">{{ getPositionLabel(player) }}</span>
+           <span class="col-stat">{{ player.goals }}</span>
+           <span class="col-stat">{{ player.assists }}</span>
+           <span class="col-stat pts">{{ player.points }}</span>
          </div>
         } @empty {
-        <p class="no-data">No goal leader data available. Click "Sync Data" to refresh.</p>
+        <p class="no-data">No players found.</p>
         }
       </div>
       } @else {
       <div class="empty-state">
-        <p class="no-data">Loading goal leader data...</p>
+        <p class="no-data">Loading all players data...</p>
         <button class="sync-btn small" (click)="syncData()">Sync Data</button>
       </div>
       }
     </section>
+    }
 
   </main>
 

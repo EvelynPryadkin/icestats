@@ -55,6 +55,12 @@ export class App {
   goalLeaders = signal<GoalLeader[]>([]);
   isLoading = false;
 
+  // Navigation tabs state - tracks which tab is currently active
+  activeTab = signal<'skaters' | 'goalleaders' | 'allplayers'>('skaters');
+
+  // Search query state - for filtering players by name or team
+  searchQuery = signal('');
+
   // Fetch NHL data on component initialization
   ngOnInit() {
     this.loadSkaters();
@@ -127,66 +133,111 @@ export class App {
     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
   }
 
-    /**
-     * getAbbreviation(): Converts full NHL team names to 3-letter abbreviations
-     * Falls back to first 3 letters of first word if not found in map
-     */
-    getAbbreviation(teamName: string): string {
-      const teamMap: Record<string, string> = {
-        // Original teams (1924-1967)
-        'Boston Bruins': 'BOS',
-        'Chicago Blackhawks': 'CHI',
-        'Detroit Red Wings': 'DET',
-        'Montreal Canadiens': 'MTL',
-        'New York Rangers': 'NYR',
-        'Toronto Maple Leafs': 'TOR',
-        
-        // 1967 Expansion
-        'Los Angeles Kings': 'LAK',
-        'Philadelphia Flyers': 'PHI',
-        'Pittsburgh Penguins': 'PIT',
-        'St. Louis Blues': 'STL',
-        
-        // 1970s expansions
-        'Buffalo Sabres': 'BUF',
-        'Edmonton Oilers': 'EDM',
-        'Vancouver Canucks': 'VAN',
-        
-        // Current NHL teams (1980s-2024)
-        'Anaheim Ducks': 'ANA',
-        'Arizona Coyotes': 'ARI',
-        'Carolina Hurricanes': 'CAR',
-        'Columbus Blue Jackets': 'CBJ',
-        'Colorado Avalanche': 'COL',
-        'Dallas Stars': 'DAL',
-        'Florida Panthers': 'FLA',
-        'Minnesota Wild': 'MIN',
-        'Nashville Predators': 'NSH',
-        'New Jersey Devils': 'NJD',
-        'New York Islanders': 'NYI',
-        'Ottawa Senators': 'OTT',
-        'San Jose Sharks': 'SJS',
-        'Seattle Kraken': 'SEA',
-        'Tampa Bay Lightning': 'TBL',
-        'Utah Hockey Club': 'UTA',
-        'Vegas Golden Knights': 'VGK',
-        'Washington Capitals': 'WSH',
-        'Winnipeg Jets': 'WPG',
-      };
-      
-      // Check exact match first
-      if (teamMap[teamName]) {
-        return teamMap[teamName];
-      }
-      
-      // Fallback: take first 3 letters of the first word and uppercase them
-      const parts = teamName.split(' ');
-      if (parts.length > 0) {
-        return parts[0].substring(0, 3).toUpperCase();
-      }
-      
-      return teamName;
+  /**
+   * getAllPlayers(): Combines skaters and goal leaders, removing duplicates by playerId
+   */
+  getAllPlayers() {
+    const skaterMap = new Map<number, Skater | GoalLeader>();
+    
+    // Add all skaters first
+    this.skaters().forEach(player => skaterMap.set(player.playerId, player));
+    
+    // Add goal leaders (duplicates will be overwritten since same playerId)
+    this.goalLeaders().forEach(player => skaterMap.set(player.playerId, player));
+    
+    // Convert back to array and sort by goals descending
+    return Array.from(skaterMap.values()).sort((a, b) => b.goals - a.goals);
+  }
+
+  /**
+   * getFilteredPlayers(): Returns players based on active tab with search filter applied
+   */
+  getFilteredPlayers() {
+    const query = this.searchQuery().toLowerCase();
+    
+    let allPlayers: (Skater | GoalLeader)[];
+    
+    if (this.activeTab() === 'skaters') {
+      allPlayers = this.skaters();
+    } else if (this.activeTab() === 'goalleaders') {
+      allPlayers = this.goalLeaders();
+    } else {
+      // All players tab
+      allPlayers = this.getAllPlayers();
     }
+    
+    // If search query is empty, return all filtered players
+    if (!query) {
+      return allPlayers;
+    }
+    
+    // Filter by player name or team (case insensitive)
+    return allPlayers.filter(player => 
+      player.fullName.toLowerCase().includes(query) || 
+      player.teamName.toLowerCase().includes(query)
+    );
+  }
+
+  /**
+   * getAbbreviation(): Converts full NHL team names to 3-letter abbreviations
+   * Falls back to first 3 letters of first word if not found in map
+   */
+  getAbbreviation(teamName: string): string {
+    const teamMap: Record<string, string> = {
+      // Original teams (1924-1967)
+      'Boston Bruins': 'BOS',
+      'Chicago Blackhawks': 'CHI',
+      'Detroit Red Wings': 'DET',
+      'Montreal Canadiens': 'MTL',
+      'New York Rangers': 'NYR',
+      'Toronto Maple Leafs': 'TOR',
+      
+      // 1967 Expansion
+      'Los Angeles Kings': 'LAK',
+      'Philadelphia Flyers': 'PHI',
+      'Pittsburgh Penguins': 'PIT',
+      'St. Louis Blues': 'STL',
+      
+      // 1970s expansions
+      'Buffalo Sabres': 'BUF',
+      'Edmonton Oilers': 'EDM',
+      'Vancouver Canucks': 'VAN',
+      
+      // Current NHL teams (1980s-2024)
+      'Anaheim Ducks': 'ANA',
+      'Arizona Coyotes': 'ARI',
+      'Carolina Hurricanes': 'CAR',
+      'Columbus Blue Jackets': 'CBJ',
+      'Colorado Avalanche': 'COL',
+      'Dallas Stars': 'DAL',
+      'Florida Panthers': 'FLA',
+      'Minnesota Wild': 'MIN',
+      'Nashville Predators': 'NSH',
+      'New Jersey Devils': 'NJD',
+      'New York Islanders': 'NYI',
+      'Ottawa Senators': 'OTT',
+      'San Jose Sharks': 'SJS',
+      'Seattle Kraken': 'SEA',
+      'Tampa Bay Lightning': 'TBL',
+      'Utah Hockey Club': 'UTA',
+      'Vegas Golden Knights': 'VGK',
+      'Washington Capitals': 'WSH',
+      'Winnipeg Jets': 'WPG',
+    };
+    
+    // Check exact match first
+    if (teamMap[teamName]) {
+      return teamMap[teamName];
+    }
+    
+    // Fallback: take first 3 letters of the first word and uppercase them
+    const parts = teamName.split(' ');
+    if (parts.length > 0) {
+      return parts[0].substring(0, 3).toUpperCase();
+    }
+    
+    return teamName;
+  }
 
    /**
     * getTeamAbbrev(): Returns team name/abbreviation for display
