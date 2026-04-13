@@ -118,19 +118,19 @@
     <section class="leaderboard-section">
       @if (getFilteredPlayers().length > 0) {
       <div class="leaderboard-table">
-        <!-- Table Header -->
+        <!-- Table Header with Sortable Columns -->
         <div class="table-header">
-          <span class="col-rank">#</span>
-          <span class="col-name">Player Name</span>
-          <span class="col-team">Team</span>
-          <span class="col-pos">Pos</span>
-          <span class="col-stat">G</span>
-          <span class="col-stat">A</span>
-          <span class="col-stat pts">PTS</span>
+          <button class="sort-header" (click)="sortSkaters('rank')"># {{ getSortIndicator('points') }}</button>
+          <button class="sort-header" (click)="sortSkaters('name')">Player Name {{ getSortIndicator('name') }}</button>
+          <button class="sort-header" (click)="sortSkaters('team')">Team {{ getSortIndicator('team') }}</button>
+          <button class="sort-header" (click)="sortSkaters('pos')">Pos {{ getSortIndicator('pos') }}</button>
+          <button class="sort-header" (click)="sortSkaters('goals')">G {{ getSortIndicator('goals') }}</button>
+          <button class="sort-header" (click)="sortSkaters('assists')">A {{ getSortIndicator('assists') }}</button>
+          <button class="sort-header" (click)="sortSkaters('points')">PTS {{ getSortIndicator('points') }}</button>
         </div>
 
         <!-- Player Rows -->
-        @for (skater of getFilteredPlayers(); track skater.playerId) {
+        @for (skater of sortedSkaters(); track skater.playerId) {
         <div class="table-row">
           <span class="col-rank">{{ $index + 1 }}</span>
           <span class="col-name">{{ formatName(skater) }}</span>
