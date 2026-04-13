@@ -83,17 +83,18 @@ export class App {
     return allPlayers.sort((a, b) => b.points - a.points)[0];
   }
 
-  topGoalScorer() {
-    const allPlayers = [...this.skaters(), ...this.goalLeaders()];
-    if (allPlayers.length === 0) return null;
-    return allPlayers.sort((a, b) => b.goals - a.goals)[0];
-  }
-
-  // Top Games Played Player
-  topGamesPlayedPlayer() {
+   // For the MOST ASSISTS card
+  topAssistPlayer = computed(() => {
     const players = this.skaters();
     if (players.length === 0) return null;
-    return [...players].sort((a, b) => b.gamesPlayed - a.gamesPlayed)[0];
+    return [...players].sort((a, b) => b.assists - a.assists)[0];
+  });
+
+  // Top Points Player from skaters only
+  topScorerPlayer() {
+    const players = this.skaters();
+    if (players.length === 0) return null;
+    return [...players].sort((a, b) => b.points - a.points)[0];
   }
 
   sortAllPlayers(column: string) {
@@ -198,15 +199,29 @@ export class App {
     return 'fullName' in player ? player.fullName : '';
   }
 
-  topScorerName() {
-    const scorer = this.topScorer();
-    if (!scorer) return '';
-    return 'skaterFullName' in scorer ? scorer.skaterFullName : scorer.fullName;
-  }
+   topScorerName() {
+     const scorer = this.topScorerPlayer();
+     if (!scorer) return '';
+     return 'skaterFullName' in scorer ? scorer.skaterFullName : scorer.fullName;
+   }
+
+   // For the MOST ASSISTS card
+   getTopAssistPlayerName() {
+     const player = this.topAssistPlayer();
+     if (!player) return '';
+     return 'skaterFullName' in player ? player.skaterFullName : player.fullName;
+   }
 
   topGoalScorerName() {
     const scorer = this.topGoalScorer();
     if (!scorer) return '';
     return 'skaterFullName' in scorer ? scorer.skaterFullName : scorer.fullName;
+  }
+
+  // Top Goal Scorer - returns player with most goals (used for Top Goal Scorer card)
+  topGoalScorer() {
+    const allPlayers = [...this.skaters(), ...this.goalLeaders()];
+    if (allPlayers.length === 0) return null;
+    return allPlayers.sort((a, b) => b.goals - a.goals)[0];
   }
 }

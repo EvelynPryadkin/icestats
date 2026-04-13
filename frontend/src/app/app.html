@@ -39,30 +39,30 @@
     <!-- Stat Summary Cards -->
     <section class="summary-cards">
       
-      <!-- Games Played Card (showing player with most games played) -->
-      @if (topGamesPlayedPlayer()) {
+      <!-- MOST ASSISTS Card (showing player with most assists from skaters) -->
+      @if (topAssistPlayer()) {
       <div class="stat-card highlight">
-        <p class="card-label">GAMES PLAYED</p>
-        <p class="card-player-name">{{ topGamesPlayedPlayer()?.fullName }}</p>
-        <p class="card-subtext" style="color: var(--accent-color);">{{ topGamesPlayedPlayer()?.gamesPlayed }} Games</p>
+        <p class="card-label">MOST ASSISTS</p>
+        <p class="card-player-name">{{ getTopAssistPlayerName() }}</p>
+        <p class="card-subtext" style="color: var(--accent-color);">{{ topAssistPlayer()?.assists }} Assists</p>
       </div>
       } @else {
       <div class="stat-card">
-        <p class="card-label">GAMES PLAYED</p>
+        <p class="card-label">MOST ASSISTS</p>
         <p class="card-value">-</p>
       </div>
       }
 
-      <!-- Top Scorer Card -->
-      @if (topScorer()) {
+      <!-- MOST POINTS Card (showing player with most points from skaters) -->
+      @if (topScorerPlayer()) {
       <div class="stat-card highlight">
-        <p class="card-label">Top Scorer</p>
+        <p class="card-label">MOST POINTS</p>
         <p class="card-player-name">{{ topScorerName() }}</p>
-        <p class="card-subtext">{{ topScorer()?.points }} Points</p>
+        <p class="card-subtext" style="color: var(--accent-color);">{{ topScorerPlayer()?.points }} Points</p>
       </div>
       } @else {
       <div class="stat-card">
-        <p class="card-label">Top Scorer</p>
+        <p class="card-label">MOST POINTS</p>
         <p class="card-value">-</p>
       </div>
       }
