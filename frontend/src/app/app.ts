@@ -25,6 +25,19 @@ interface GoalLeader {
   points: number;
 }
 
+interface StandingsTeam {
+  teamName: { default: string };
+  teamAbbrev: { default: string };
+  teamLogo: string;
+  wins: number;
+  losses: number;
+  otLosses: number;
+  points: number;
+  divisionName: string;
+  conferenceName: string;
+  streakCode: string;
+}
+
 interface SyncResponse {
   message: string;
 }
@@ -41,9 +54,13 @@ export class App {
 
   skaters = signal<Skater[]>([]);
   goalLeaders = signal<GoalLeader[]>([]);
+  teams = signal<StandingsTeam[]>([]);
   isLoading = false;
-  activeTab = signal<'skaters' | 'goalleaders' | 'allplayers'>('skaters');
+  activeTab = signal<'skaters' | 'goalleaders' | 'allplayers' | 'teams'>('skaters');
   searchQuery = signal('');
+  
+  // Teams tab conference filter
+  teamConferenceFilter = signal<string>('all'); // 'all', 'Eastern', 'Western'
 
   // All Players tab sorting signals
   allPlayersSortColumn = signal('points');
@@ -52,6 +69,7 @@ export class App {
   ngOnInit() {
     this.loadSkaters();
     this.loadGoalLeaders();
+    this.loadTeams();
   }
 
   loadSkaters() {
@@ -89,6 +107,40 @@ export class App {
     if (players.length === 0) return null;
     return [...players].sort((a, b) => b.assists - a.assists)[0];
   });
+
+  // Load teams from NHL API
+  loadTeams() {
+    this.http.get<any>('https://api-web.nhle.com/v1/standings/now')
+      .subscribe({
+        next: (data) => { 
+          if (data.standings) {
+            this.teams.set(data.standings); 
+            console.log('Teams loaded:', data.standings.length);
+          }
+        },
+        error: (err) => console.error(err)
+      });
+  }
+
+  // Get filtered teams by conference
+  filteredTeams = computed(() => {
+    let teams = this.teams();
+    
+    if (this.teamConferenceFilter() !== 'all') {
+      teams = teams.filter(team => team.conferenceName === this.teamConferenceFilter());
+    }
+    
+    // Sort by points descending
+    return [...teams].sort((a, b) => b.points - a.points);
+  });
+
+  setTeamConference(conference: string) {
+    this.teamConferenceFilter.set(conference);
+  }
+
+  formatRecord(team: StandingsTeam): string {
+    return `${team.wins}-${team.losses}-${team.otLosses}`;
+  }
 
   // Top Points Player from skaters only
   topScorerPlayer() {
