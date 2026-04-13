@@ -8,6 +8,7 @@ interface Skater {
   fullName: string;
   teamName: string;
   position: string;
+  gamesPlayed: number;
   goals: number;
   assists: number;
   points: number;
@@ -43,8 +44,10 @@ export class App {
   isLoading = false;
   activeTab = signal<'skaters' | 'goalleaders' | 'allplayers'>('skaters');
   searchQuery = signal('');
-  skaterSortColumn = signal('points');
-  skaterSortDirection = signal<'asc' | 'desc'>('desc');
+
+  // All Players tab sorting signals
+  allPlayersSortColumn = signal('points');
+  allPlayersSortDirection = signal<'asc' | 'desc'>('desc');
 
   ngOnInit() {
     this.loadSkaters();
@@ -86,71 +89,59 @@ export class App {
     return allPlayers.sort((a, b) => b.goals - a.goals)[0];
   }
 
-  topAssistPlayer() {
+  // Top Games Played Player
+  topGamesPlayedPlayer() {
     const players = this.skaters();
     if (players.length === 0) return null;
-    return [...players].sort((a, b) => b.assists - a.assists)[0];
+    return [...players].sort((a, b) => b.gamesPlayed - a.gamesPlayed)[0];
   }
 
-  sortSkaters(column: string) {
-    if (this.skaterSortColumn() === column) {
-      this.skaterSortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
+  sortAllPlayers(column: string) {
+    if (this.allPlayersSortColumn() === column) {
+      this.allPlayersSortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
     } else {
-      this.skaterSortColumn.set(column);
-      this.skaterSortDirection.set('desc');
+      this.allPlayersSortColumn.set(column);
+      this.allPlayersSortDirection.set('desc');
     }
   }
 
-  sortedSkaters = computed(() => {
-    let players: (Skater | GoalLeader)[] = [];
-    if (this.activeTab() === 'skaters') { players = this.skaters(); }
-    else if (this.activeTab() === 'goalleaders') { players = this.goalLeaders(); }
-    else {
-      const playerMap = new Map<number, Skater | GoalLeader>();
-      this.skaters().forEach(p => playerMap.set(p.playerId, p));
-      this.goalLeaders().forEach(leader => { if (!playerMap.has(leader.playerId)) { playerMap.set(leader.playerId, leader); } });
-      players = Array.from(playerMap.values());
-    }
+  sortedAllPlayers = computed(() => {
+    // Get all players (combined from skaters and goal leaders, no duplicates)
+    const playerMap = new Map<number, Skater | GoalLeader>();
+    this.skaters().forEach(p => playerMap.set(p.playerId, p));
+    this.goalLeaders().forEach(leader => { if (!playerMap.has(leader.playerId)) { playerMap.set(leader.playerId, leader); } });
     
+    let players = Array.from(playerMap.values());
+    
+    // Apply search filter
     const query = this.searchQuery().toLowerCase();
-    let filteredPlayers: (Skater | GoalLeader)[];
     if (query) {
-      filteredPlayers = players.filter(p => p.fullName.toLowerCase().includes(query) || p.teamName.toLowerCase().includes(query));
-    } else {
-      filteredPlayers = [...players];
+      players = players.filter(p => p.fullName.toLowerCase().includes(query) || p.teamName.toLowerCase().includes(query));
     }
     
-    if (this.activeTab() !== 'skaters') { return filteredPlayers; }
+    // Sort by selected column
+    const column = this.allPlayersSortColumn();
+    const direction = this.allPlayersSortDirection();
     
-    const column = this.skaterSortColumn();
-    const direction = this.skaterSortDirection();
-    
-    return filteredPlayers.sort((a, b) => {
+    return players.sort((a, b) => {
       let valueA: number | string;
       let valueB: number | string;
       
       switch (column) {
-        case 'name': valueA = a.fullName.toLowerCase(); valueB = b.fullName.toLowerCase(); break;
-        case 'team': valueA = a.teamName.toLowerCase(); valueB = b.teamName.toLowerCase(); break;
-        case 'pos': valueA = (a.position || '').toLowerCase(); valueB = (b.position || '').toLowerCase(); break;
         case 'goals': valueA = (a as Skater).goals; valueB = (b as Skater).goals; break;
         case 'assists': valueA = (a as Skater).assists; valueB = (b as Skater).assists; break;
         default: valueA = (a as Skater).points; valueB = (b as Skater).points; break;
       }
       
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
-        const comparison = valueA.localeCompare(valueB);
-        return direction === 'asc' ? comparison : -comparison;
-      } else {
-        const comparison = Number(valueA) - Number(valueB);
-        return direction === 'asc' ? comparison : -comparison;
-      }
+      // All sort columns are numeric (goals, assists, points)
+      const comparison = Number(valueA) - Number(valueB);
+      return direction === 'asc' ? comparison : -comparison;
     });
   })
 
   getSortIndicator(column: string): string {
-    if (this.skaterSortColumn() !== column) return '';
-    return this.skaterSortDirection() === 'asc' ? '↑' : '↓';
+    if (this.allPlayersSortColumn() !== column) return '';
+    return this.allPlayersSortDirection() === 'asc' ? '↑' : '↓';
   }
 
   getPositionLabel(player: Skater | GoalLeader): string {
@@ -159,22 +150,22 @@ export class App {
     return '';
   }
 
-  getAllPlayers() {
-    const playerMap = new Map<number, Skater | GoalLeader>();
-    this.skaters().forEach(player => playerMap.set(player.playerId, player));
-    this.goalLeaders().forEach(leader => { if (!playerMap.has(leader.playerId)) { playerMap.set(leader.playerId, leader); } });
-    return Array.from(playerMap.values()).sort((a, b) => (b as any).points - (a as any).points);
-  }
-
   getFilteredPlayers() {
     const query = this.searchQuery().toLowerCase();
-    let allPlayers: (Skater | GoalLeader)[];
-    if (this.activeTab() === 'skaters') { return this.sortedSkaters(); }
-    else if (this.activeTab() === 'goalleaders') { allPlayers = this.goalLeaders(); }
-    else { allPlayers = this.getAllPlayers(); }
     
-    if (!query) { return allPlayers; }
-    return allPlayers.filter(player => player.fullName.toLowerCase().includes(query) || player.teamName.toLowerCase().includes(query));
+    if (this.activeTab() === 'skaters') {
+      // Static order: just sort by points descending
+      return [...this.skaters()].sort((a, b) => b.points - a.points);
+    } else if (this.activeTab() === 'goalleaders') {
+      let players = this.goalLeaders();
+      if (query) {
+        players = players.filter(p => p.fullName.toLowerCase().includes(query) || p.teamName.toLowerCase().includes(query));
+      }
+      return players;
+    } else {
+      // All Players tab
+      return this.sortedAllPlayers();
+    }
   }
 
   getAbbreviation(teamName: string): string {
