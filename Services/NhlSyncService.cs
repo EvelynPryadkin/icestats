@@ -86,7 +86,7 @@ public class NhlSyncService
     {
         try
         {
-             var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=points&dir=DESC&cayenneExp=seasonId=20252026";
+            var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=points&dir=DESC&cayenneExp=seasonId=20252026";
             
             Console.WriteLine($"Requesting: {url}");
             
@@ -125,6 +125,58 @@ public class NhlSyncService
     }
 
     /// <summary>
+    /// Fetches current NHL team standings from the API and saves them to MySQL.
+    /// Endpoint: https://api.nhle.com/stats/rest/en/standings?cayenneExp=seasonId=20252026
+    ///
+    /// What is a cayenneExp?
+    /// ---------------------
+    /// This is an NHL-specific filtering parameter that works like a WHERE clause.
+    /// The format is: seasonId=YYYYYYYY where YYYYYYYY is the 8-digit season ID.
+    /// For example, 20252026 represents the 2025-26 season (2025 starts in Oct, ends in Apr 2026).
+    /// </summary>
+    public async Task<bool> SyncTeamsAsync()
+    {
+        try
+        {
+            var url = "https://api.nhle.com/stats/rest/en/standings?cayenneExp=seasonId=20252026";
+            
+            Console.WriteLine($"Requesting: {url}");
+            
+            // The standings endpoint returns an array directly, not wrapped in {data: [...]}
+            var teamsArray = await _httpClient.GetFromJsonAsync<NhlTeam[]>(url);
+
+            if (teamsArray == null || teamsArray.Length == 0)
+            {
+                Console.WriteLine("Error: Response or Data was null");
+                return false;
+            }
+
+            Console.WriteLine($"Successfully retrieved {teamsArray.Length} teams");
+
+            // Clear existing teams and add new ones
+            _context.NhlTeams.RemoveRange(_context.NhlTeams);
+            foreach (var team in teamsArray)
+            {
+                _context.NhlTeams.Add(team);
+            }
+
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"Saved {teamsArray.Length} teams to database");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error syncing teams: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Fetches top 20 NHL goal scorers from the API and saves them to MySQL.
     /// Endpoint: https://api.nhle.com/stats/rest/en/skater/summary
     /// </summary>
@@ -132,7 +184,7 @@ public class NhlSyncService
     {
         try
         {
-             var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=goals&dir=DESC&cayenneExp=seasonId=20252026";
+            var url = $"https://api.nhle.com/stats/rest/en/skater/summary?limit={limit}&sort=goals&dir=DESC&cayenneExp=seasonId=20252026";
             
             Console.WriteLine($"Requesting: {url}");
             

@@ -37,6 +37,7 @@ public class IceStatsDbContext : DbContext
     public DbSet<NhlStanding> NhlStandings => Set<NhlStanding>();
     public DbSet<NhlSkater> NhlSkaters => Set<NhlSkater>();
     public DbSet<NhlGoalLeader> NhlGoalLeaders => Set<NhlGoalLeader>();
+    public DbSet<NhlTeam> NhlTeams => Set<NhlTeam>();
 
     /// <summary>
     /// This method is optional - used to configure the database schema in more detail.
@@ -96,5 +97,9 @@ public class IceStatsDbContext : DbContext
             .Ignore(g => g.FullName);
         modelBuilder.Entity<NhlGoalLeader>()
             .Property(g => g.TeamAbbreviation);
+
+        // Configure NHL Team entity
+        modelBuilder.Entity<NhlTeam>()
+            .HasKey(t => t.TeamAbbrev);
     }
 }

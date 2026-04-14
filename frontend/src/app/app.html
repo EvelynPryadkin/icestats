@@ -110,51 +110,8 @@
           (click)="activeTab.set('allplayers')">
           All Players
         </button>
-        <button 
-          class="tab-btn {{ activeTab() === 'teams' ? 'active' : '' }}"
-          (click)="activeTab.set('teams')">
-          TEAMS
-        </button>
       </section>
     </div>
-
-    <!-- Teams Leaderboard Tab -->
-    @if (activeTab() === 'teams') {
-    <section class="leaderboard-section">
-      <div class="conference-filter">
-        <button 
-          class="filter-pill {{ teamConferenceFilter() === 'all' ? 'active' : '' }}"
-          (click)="setTeamConference('all')">All</button>
-        <button 
-          class="filter-pill {{ teamConferenceFilter() === 'Eastern' ? 'active' : '' }}"
-          (click)="setTeamConference('Eastern')">Eastern</button>
-        <button 
-          class="filter-pill {{ teamConferenceFilter() === 'Western' ? 'active' : '' }}"
-          (click)="setTeamConference('Western')">Western</button>
-      </div>
-
-      @if (filteredTeams().length > 0) {
-      <div class="team-grid">
-        @for (team of filteredTeams(); track team.teamAbbrev.default) {
-        <div class="team-card">
-          <img [src]="team.teamLogo" alt="{{ team.teamName.default }}" class="team-logo">
-          <h3 class="team-name">{{ team.teamName.default }}</h3>
-          <span class="team-abbreviation">{{ team.teamAbbrev.default }}</span>
-          <p class="team-record">{{ formatRecord(team) }} W-L-OT</p>
-          <p class="team-points" style="color: #FFB0DD;">{{ team.points }} Points</p>
-          <p class="team-division">{{ team.divisionName }}</p>
-        </div>
-        } @empty {
-        <p class="no-data">Loading teams data...</p>
-        }
-      </div>
-      } @else {
-      <div class="empty-state">
-        <p class="no-data">Loading teams...</p>
-      </div>
-      }
-    </section>
-    }
 
     <!-- Skaters Leaderboard Tab - Static Sort by Points Descending -->
     @if (activeTab() === 'skaters') {

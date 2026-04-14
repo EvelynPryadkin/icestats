@@ -67,6 +67,23 @@ public class SyncController : ControllerBase
     }
 
     /// <summary>
+    /// POST: api/sync/teams
+    /// Fetches current NHL team standings and saves them to our database.
+    /// </summary>
+    [HttpPost("teams")]
+    public async Task<ActionResult> SyncTeams()
+    {
+        var success = await _syncService.SyncTeamsAsync();
+        
+        if (success)
+        {
+            return Ok(new { message = "Successfully synced NHL teams!" });
+        }
+        
+        return StatusCode(500, new { message = "Failed to sync teams. Check server logs." });
+    }
+
+    /// <summary>
     /// POST: api/sync/goalleaders
     /// Fetches top 20 NHL goal scorers and saves them to our database.
     /// </summary>
@@ -148,6 +165,33 @@ public class NhlController : ControllerBase
 
          return Ok(leaders);
      }
+
+    /// <summary>
+    /// GET: api/nhl/teams
+    /// Returns all NHL teams from our local database.
+    /// </summary>
+    [HttpGet("teams")]
+    public async Task<ActionResult<IEnumerable<object>>> GetTeams()
+    {
+        var teams = await _context.NhlTeams
+            .Select(t => new
+            {
+                t.TeamAbbrev,
+                TeamFullName = t.TeamName ?? "Unknown",
+                t.TeamLogo,
+                Wins = t.Wins,
+                Losses = t.Losses,
+                OtLosses = t.OtLosses,
+                Points = t.Points,
+                DivisionName = t.DivisionName,
+                ConferenceName = t.ConferenceName,
+                StreakCode = t.StreakCode
+            })
+            .OrderByDescending(t => t.Points)
+            .ToListAsync();
+
+        return Ok(teams);
+    }
 
     /// <summary>
     /// GET: api/nhl/leaders/skaters
